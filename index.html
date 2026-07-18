@@ -510,20 +510,20 @@
     </div>
 
     <div class="controls">
-      <button class="ctrl-side" onclick="skip(-10)" title="ถอยหลัง 10 วิ">⏪</button>
+      <button class="ctrl-side" onclick="skip(-10)" title="ถอยหลัง 10 วิ">◁◁</button>
       <button class="ctrl-main" id="playBtn" onclick="togglePlay()" title="เล่น/หยุด">▶</button>
-      <button class="ctrl-side" onclick="skip(10)" title="เดินหน้า 10 วิ">⏩</button>
+      <button class="ctrl-side" onclick="skip(10)" title="เดินหน้า 10 วิ">▷▷</button>
     </div>
 
     <div class="sub-controls">
-      <button id="loopBtn" onclick="toggleLoop()" title="วนซ้ำ">🔁</button>
+      <button id="loopBtn" onclick="toggleLoop()" title="วนซ้ำ">↻</button>
       <button onclick="setVolumeStep()" id="volBtn" title="เสียง">🔊</button>
       <button onclick="showPage('favPage')" title="รายการโปรด">❤️</button>
       <button onclick="toggleFullscreen()" title="เต็มจอ">📺</button>
     </div>
 
     <div class="speed-wrap">
-      <div class="speed-label">⏩ ความเร็วเล่น <b id="speedVal">1.0x</b></div>
+      <div class="speed-label">▷▷ ความเร็วเล่น <b id="speedVal">1.0x</b></div>
       <input type="range" class="speed" id="speedSlider" min="0.5" max="2" step="0.1" value="1" oninput="setSpeed(this.value)">
     </div>
 
@@ -534,8 +534,8 @@
         <button class="btn primary" onclick="playFromUrl(true)">▶ เล่น</button>
       </div>
       <div class="io-row">
-        <button class="btn" onclick="document.getElementById('audioFileInput').click()">📁 ไฟล์ MP3</button>
-        <button class="btn" onclick="document.getElementById('videoFileInput').click()">📁 ไฟล์ MP4</button>
+        <button class="btn" onclick="document.getElementById('audioFileInput').click()">🛍️ ไฟล์ MP3</button>
+        <button class="btn" onclick="document.getElementById('videoFileInput').click()">🛍️ ไฟล์ MP4</button>
       </div>
     </div>
   </div>

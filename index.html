@@ -427,9 +427,11 @@
       <input id="searchInput" type="text" placeholder="ค้นหาเพลง ศิลปิน หรือสถานี..." oninput="onSearch(this.value)">
     </div>
 
-    <div class="hero">
-      <div class="hero-text">Party Animal</div>
-    </div>
+<a href="https://yourwebsite.com" style="text-decoration: none; color: inherit;">
+  <div class="hero"> 
+    <div class="hero-text">สถานีวิทยุ ออนไลน์ ThaiRadio </div> 
+  </div>
+</a>
 
     <div class="section-label">สถานีฮิต</div>
     <div class="grid" id="stationGrid"></div>
@@ -763,7 +765,7 @@ function renderGrid(el, list, onClickFn){
   el.innerHTML = list.map((item,i)=>`
     <div class="card" tabindex="0" onclick="${onClickFn}(${i})">
       <div class="art" style="background:${item.grad}">
-        <span class="tag">JOOX</span>
+        <span class="tag">Music</span>
         <span>${item.emoji}</span>
       </div>
       <div class="name">${item.name}</div>

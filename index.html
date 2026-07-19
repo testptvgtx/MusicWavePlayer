@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>คลื่นเพลง · Music Wave Player</title>
+<title>🎧Wave Music </title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
@@ -410,7 +410,7 @@
   <div class="topbar" id="topbar">
     <div class="brand">
       <div class="avatar">🎧</div>
-      <div class="title">คลื่นเพลง<small>Music Wave Player</small></div>
+      <div class="title">Wave Music Player<small>คลื่นเพลงเพราะ</small></div>
     </div>
     <div class="top-actions">
       <button title="เพลย์ลิสต์" onclick="showPage('playlistPage')">🎶</button>
@@ -434,7 +434,7 @@
     <div class="section-label">สถานีฮิต</div>
     <div class="grid" id="stationGrid"></div>
 
-    <div class="section-label">📁 เล่นจากไฟล์ในเครื่อง</div>
+    <div class="section-label">🗃️ เล่นจากไฟล์ในเครื่อง</div>
     <div class="io-row">
       <button class="btn primary" onclick="document.getElementById('audioFileInput').click()">🎵 เปิดไฟล์ MP3</button>
       <button class="btn primary" onclick="document.getElementById('videoFileInput').click()">🎬 เปิดไฟล์ MP4</button>
@@ -482,7 +482,7 @@
         <div class="np-title" id="npTitle">ยังไม่ได้เลือกเพลง</div>
         <div class="np-artist" id="npArtist">เปิดไฟล์ หรือใส่ลิงก์เพื่อเริ่มฟัง</div>
       </div>
-      <button class="icon-btn" onclick="toggleFullscreen()" title="เต็มจอ">📺</button>
+      <button class="icon-btn" onclick="toggleFullscreen()" title="เต็มจอ">💠</button>
     </div>
 
     <div class="badges">
@@ -510,20 +510,20 @@
     </div>
 
     <div class="controls">
-      <button class="ctrl-side" onclick="skip(-10)" title="ถอยหลัง 10 วิ">⏪</button>
+      <button class="ctrl-side" onclick="skip(-10)" title="ถอยหลัง 10 วิ">«</button>
       <button class="ctrl-main" id="playBtn" onclick="togglePlay()" title="เล่น/หยุด">▶</button>
-      <button class="ctrl-side" onclick="skip(10)" title="เดินหน้า 10 วิ">⏩</button>
+      <button class="ctrl-side" onclick="skip(10)" title="เดินหน้า 10 วิ">»</button>
     </div>
 
     <div class="sub-controls">
-      <button id="loopBtn" onclick="toggleLoop()" title="วนซ้ำ">🔁</button>
+      <button id="loopBtn" onclick="toggleLoop()" title="วนซ้ำ">↻</button>
       <button onclick="setVolumeStep()" id="volBtn" title="เสียง">🔊</button>
       <button onclick="showPage('favPage')" title="รายการโปรด">❤️</button>
-      <button onclick="toggleFullscreen()" title="เต็มจอ">📺</button>
+      <button onclick="toggleFullscreen()" title="เต็มจอ">💠</button>
     </div>
 
     <div class="speed-wrap">
-      <div class="speed-label">⏩ ความเร็วเล่น <b id="speedVal">1.0x</b></div>
+      <div class="speed-label">» ความเร็วเล่น <b id="speedVal">1.0x</b></div>
       <input type="range" class="speed" id="speedSlider" min="0.5" max="2" step="0.1" value="1" oninput="setSpeed(this.value)">
     </div>
 
@@ -534,8 +534,8 @@
         <button class="btn primary" onclick="playFromUrl(true)">▶ เล่น</button>
       </div>
       <div class="io-row">
-        <button class="btn" onclick="document.getElementById('audioFileInput').click()">📁 ไฟล์ MP3</button>
-        <button class="btn" onclick="document.getElementById('videoFileInput').click()">📁 ไฟล์ MP4</button>
+        <button class="btn" onclick="document.getElementById('audioFileInput').click()">🗃️ ไฟล์ MP3</button>
+        <button class="btn" onclick="document.getElementById('videoFileInput').click()">🗃️ ไฟล์ MP4</button>
       </div>
     </div>
   </div>

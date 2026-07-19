@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Thai Radio</title>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
 <style>
 *{
@@ -299,30 +300,56 @@ card.innerHTML=`
 <h3>${s.name}</h3>
 `;
 
-card.onclick=()=>{
+card.onclick = () => {
 
-document.querySelectorAll(".card").forEach(c=>c.classList.remove("active"));
-card.classList.add("active");
+    document.querySelectorAll(".card").forEach(c => c.classList.remove("active"));
+    card.classList.add("active");
 
-audio.src=s.url;
-audio.play();
+    document.getElementById("nowPlaying").textContent = "🎵 กำลังเล่น : " + s.name;
 
-document.getElementById("nowPlaying").innerHTML="🎵 กำลังเล่น : "+s.name;
+    if (window.hls) {
+        window.hls.destroy();
+        window.hls = null;
+    }
+
+    audio.pause();
+    audio.removeAttribute("src");
+    audio.load();
+
+    if (s.url.toLowerCase().includes(".m3u8")) {
+
+        if (Hls.isSupported()) {
+
+            window.hls = new Hls();
+
+            window.hls.loadSource(s.url);
+
+            window.hls.attachMedia(audio);
+
+            window.hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                audio.play().catch(console.error);
+            });
+
+        } else if (audio.canPlayType("application/vnd.apple.mpegurl")) {
+
+            audio.src = s.url;
+            audio.play().catch(console.error);
+
+        }
+
+    } else {
+
+        audio.src = s.url;
+        audio.play().catch(console.error);
+
+    }
 
 };
+    audio.addEventListener("error", function () {
 
-list.appendChild(card);
+    alert("สถานีนี้ไม่สามารถเล่นได้ หรือเซิร์ฟเวอร์บล็อกการเล่นบนเว็บ");
 
 });
-
-function toggle(){
-
-if(audio.paused)
-audio.play();
-else
-audio.pause();
-
-}
 
 /* ==========================
    ข้อมูลต้นฉบับ

@@ -580,8 +580,8 @@
         <div class="np-title" id="npTitle">ยังไม่ได้เลือกเพลง</div>
         <div class="np-artist" id="npArtist">เปิดไฟล์ หรือใส่ลิงก์เพื่อเริ่มฟัง</div>
       </div>
+      <button class="icon-btn" onclick="toggleFullscreen()" title="เต็มจอ"></button>
       <button class="icon-btn" onclick="openEqualizer()" title="อีควอไลเซอร์">🎚️</button>
-      <button class="icon-btn" onclick="toggleFullscreen()" title="เต็มจอ">💠</button>
     </div>
 
     <div class="badges">
@@ -625,7 +625,7 @@
       <button id="loopBtn" onclick="toggleLoop()" title="วนซ้ำ">↻</button>
       <button onclick="setVolumeStep()" id="volBtn" title="เสียง">🔊</button>
       <button onclick="showPage('favPage')" title="รายการโปรด">❤️</button>
-      <button onclick="toggleFullscreen()" title="เต็มจอ">💠</button>
+      <button onclick="toggleFullscreen()" title="เต็มจอ"></button>
     </div>
 
     <div class="speed-wrap">
@@ -928,7 +928,7 @@ function openStation(i){
   currentQueueIndex = -1;
   loadTrack({title:s.name, artist:"สถานีเพลง · คลื่นเพลง", src:null, kind:'audio', coverEmoji:s.emoji});
   showPage('playerPage');
-  document.getElementById('lyricHint').textContent = "🌐 สถานีนี้เป็นตัวอย่าง — ใส่ลิงก์เพลง MP3 ด้านล่างเพื่อเริ่มฟังจริง";
+  document.getElementById('lyricHint').textContent = "🌐 สถานีนี้เป็นตัวอย่าง — ใส่ลิงก์เพลง MP3 ด้านล่างเพื่อเริ่มฟัง";
 }
 function openTheme(i){
   const t = themes[i];

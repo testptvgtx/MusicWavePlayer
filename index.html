@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>🎧Wave Music </title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Sarabun:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-1:#0c1b1e;
+    --bg-2:#122b2c;
+    --teal-deep:#0e2f31;
+    --teal-glow:#1f5f5a;
+    --accent:#a8ff60;
+    --accent-dim:#7fd956;
+    --pink:#ff6f91;
+    --ink:#eaf6f2;
+    --ink-dim:#9fbdb8;
+    --glass:rgba(255,255,255,0.06);
+    --glass-line:rgba(255,255,255,0.10);
+    --shadow:0 20px 50px rgba(0,0,0,0.45);
+    --radius:20px;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:'Sarabun','Kanit',sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(circle at 15% 0%, rgba(168,255,96,0.10), transparent 45%),
+      radial-gradient(circle at 90% 20%, rgba(255,111,145,0.10), transparent 40%),
+      linear-gradient(160deg, var(--bg-1), var(--bg-2) 60%, #0a1516 100%);
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  h1,h2,h3,.display{font-family:'Kanit',sans-serif;}
+
+  /* ---------- App shell ---------- */
+  .app{
+    max-width:480px;
+    margin:0 auto;
+    min-height:100vh;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    padding-bottom:82px;
+  }
+  @media (min-width:900px){
+    .app{max-width:1100px;}
+  }
+
+  /* Ambient floating blobs like the reference hero */
+  .blob{
+    position:fixed;
+    border-radius:50%;
+    filter:blur(60px);
+    opacity:.35;
+    z-index:0;
+    pointer-events:none;
+    animation:float 16s ease-in-out infinite;
+  }
+  .blob.b1{width:260px;height:260px;background:var(--accent);top:-80px;left:-60px;}
+  .blob.b2{width:220px;height:220px;background:var(--pink);bottom:120px;right:-70px;animation-delay:-6s;}
+  .blob.b3{width:180px;height:180px;background:var(--teal-glow);top:40%;left:70%;animation-delay:-11s;}
+  @keyframes float{
+    0%,100%{transform:translate(0,0) scale(1);}
+    50%{transform:translate(20px,-25px) scale(1.08);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .blob{animation:none;}
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 20px 10px;
+    position:relative;
+    z-index:2;
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand .avatar{
+    width:38px;height:38px;border-radius:50%;
+    background:linear-gradient(135deg,var(--accent),var(--pink));
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;
+    box-shadow:0 0 0 2px rgba(255,255,255,0.15);
+  }
+  .brand .title{font-family:'Kanit';font-weight:600;font-size:19px;letter-spacing:.3px;}
+  .brand .title small{display:block;font-family:'Sarabun';font-weight:400;font-size:11px;color:var(--ink-dim);}
+  .top-actions{display:flex;gap:14px;font-size:19px;color:var(--ink-dim);}
+  .top-actions button{background:none;border:none;color:inherit;cursor:pointer;padding:4px;}
+  .top-actions button:hover, .top-actions button:focus-visible{color:var(--accent);outline:none;}
+
+  /* ---------- Pages ---------- */
+  .page{display:none;position:relative;z-index:1;padding:4px 20px 20px;}
+  .page.active{display:block;animation:fadein .35s ease;}
+  @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  .section-label{
+    display:flex;align-items:center;gap:8px;
+    font-family:'Kanit';font-weight:500;font-size:14px;
+    color:var(--ink-dim);
+    margin:22px 0 10px;
+  }
+  .section-label::before{
+    content:"";width:4px;height:14px;background:var(--accent);border-radius:3px;
+  }
+
+  /* search */
+  .searchbar{
+    display:flex;align-items:center;gap:10px;
+    background:var(--glass);
+    border:1px solid var(--glass-line);
+    border-radius:14px;
+    padding:11px 14px;
+    backdrop-filter:blur(10px);
+  }
+  .searchbar input{
+    flex:1;background:none;border:none;color:var(--ink);font-size:15px;font-family:'Sarabun';
+  }
+  .searchbar input::placeholder{color:var(--ink-dim);}
+  .searchbar input:focus{outline:none;}
+  .searchbar .icon{font-size:16px;opacity:.8;}
+
+  .a2hs-banner{
+    display:flex;align-items:center;gap:10px;
+    background:rgba(168,255,96,0.10);
+    border:1px solid rgba(168,255,96,0.3);
+    border-radius:12px;
+    padding:10px 12px;
+    margin-top:10px;
+    font-size:12.5px;color:var(--ink-dim);line-height:1.5;
+  }
+  .a2hs-banner b{color:var(--accent);}
+  .a2hs-banner button{
+    background:none;border:none;color:var(--ink-dim);font-size:14px;cursor:pointer;
+    flex-shrink:0;padding:2px 4px;
+  }
+
+
+  /* hero banner */
+  .hero{
+    position:relative;
+    border-radius:var(--radius);
+    overflow:hidden;
+    height:150px;
+    margin-top:14px;
+    display:flex;align-items:center;justify-content:center;
+    background:
+      linear-gradient(120deg, rgba(0,0,0,.35), rgba(0,0,0,.55)),
+      linear-gradient(135deg,#ff6f91,#a8ff60 130%);
+    box-shadow:var(--shadow);
+  }
+  .hero .hero-text{
+    font-family:'Kanit';font-weight:700;font-size:26px;letter-spacing:2px;
+    color:#fff;text-transform:uppercase;text-shadow:0 4px 18px rgba(0,0,0,.4);
+  }
+
+  /* card grid */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+    margin-top:12px;
+  }
+  @media (min-width:900px){ .grid{grid-template-columns:repeat(6,1fr);} }
+  .card{
+    background:var(--glass);
+    border:1px solid var(--glass-line);
+    border-radius:16px;
+    overflow:hidden;
+    cursor:pointer;
+    transition:transform .18s ease, border-color .18s ease;
+    display:flex;flex-direction:column;
+  }
+  .card:hover, .card:focus-visible{transform:translateY(-3px);border-color:var(--accent);outline:none;}
+  .card .art{
+    aspect-ratio:1/1;
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px;
+    background-size:cover;background-position:center;
+    position:relative;
+  }
+  .card .tag{
+    position:absolute;top:6px;left:6px;
+    background:rgba(0,0,0,.5);
+    font-size:9px;padding:2px 6px;border-radius:6px;
+    letter-spacing:.5px;
+  }
+  .card .name{font-size:11.5px;padding:8px 8px 10px;line-height:1.3;color:var(--ink);font-family:'Kanit';font-weight:400;}
+
+  /* favorites list */
+  .track-row{
+    display:flex;align-items:center;gap:12px;
+    background:var(--glass);
+    border:1px solid var(--glass-line);
+    border-radius:14px;
+    padding:10px 12px;
+    margin-bottom:10px;
+    cursor:pointer;
+  }
+  .track-row:hover{border-color:var(--accent);}
+  .track-row .art{
+    width:44px;height:44px;border-radius:10px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;font-size:18px;
+    background:linear-gradient(135deg,var(--teal-glow),var(--bg-2));
+  }
+  .track-row .meta{flex:1;min-width:0;}
+  .track-row .meta .t{font-size:14px;font-family:'Kanit';white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .track-row .meta .a{font-size:12px;color:var(--ink-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .track-row .heart{font-size:16px;background:none;border:none;color:var(--pink);cursor:pointer;padding:6px;}
+  .empty-hint{
+    color:var(--ink-dim);font-size:13px;text-align:center;padding:26px 10px;
+    border:1px dashed var(--glass-line);border-radius:14px;
+  }
+
+  /* input rows (open file / url) */
+  .io-row{
+    display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;
+  }
+  .io-row input[type=text]{
+    flex:1;min-width:150px;
+    background:var(--glass);
+    border:1px solid var(--glass-line);
+    border-radius:12px;
+    padding:11px 13px;
+    color:var(--ink);font-size:14px;font-family:'Sarabun';
+  }
+  .io-row input[type=text]::placeholder{color:var(--ink-dim);}
+  .io-row input[type=text]:focus{outline:none;border-color:var(--accent);}
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--glass);
+    border:1px solid var(--glass-line);
+    color:var(--ink);
+    font-family:'Kanit';font-size:13px;font-weight:500;
+    padding:11px 16px;border-radius:12px;
+    cursor:pointer;white-space:nowrap;
+    transition:.15s ease;
+  }
+  .btn:hover, .btn:focus-visible{border-color:var(--accent);color:var(--accent);outline:none;}
+  .btn.primary{background:var(--accent);color:#0c1b1e;border-color:var(--accent);}
+  .btn.primary:hover{filter:brightness(1.08);color:#0c1b1e;}
+  .hidden-input{display:none;}
+
+  /* ---------- Now Playing page ---------- */
+  .player-top{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 20px 4px;position:relative;z-index:2;
+  }
+  .icon-btn{
+    background:none;border:none;color:var(--ink);font-size:20px;cursor:pointer;padding:6px;
+  }
+  .icon-btn:hover, .icon-btn:focus-visible{color:var(--accent);outline:none;}
+  .np-title-wrap{text-align:center;flex:1;overflow:hidden;padding:0 8px;}
+  .np-title{font-family:'Kanit';font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .np-artist{font-size:11.5px;color:var(--ink-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+  .badges{display:flex;gap:8px;justify-content:center;margin:10px 0 6px;}
+  .badge{
+    font-size:10.5px;font-family:'Kanit';padding:4px 10px;border-radius:8px;
+    border:1px solid var(--glass-line);color:var(--ink-dim);letter-spacing:.5px;
+  }
+  .badge.on{border-color:var(--accent);color:var(--accent);}
+
+  .art-stage{
+    display:flex;align-items:center;justify-content:center;
+    padding:14px 30px 6px;position:relative;
+  }
+  .disc-ring{
+    width:min(64vw,260px);
+    aspect-ratio:1/1;
+    position:relative;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .disc-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);}
+  .disc-ring .ring-bg{fill:none;stroke:rgba(255,255,255,.12);stroke-width:5;}
+  .disc-ring .ring-fg{
+    fill:none;stroke:#fff;stroke-width:5;stroke-linecap:round;
+    stroke-dasharray:628.3;stroke-dashoffset:628.3;
+    filter:drop-shadow(0 0 6px rgba(255,255,255,.55));
+    transition:stroke-dashoffset .15s linear;
+  }
+  .disc{
+    width:82%;height:82%;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--teal-glow), var(--bg-2) 65%, var(--bg-1) 100%);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 20px 50px rgba(0,0,0,.55), 0 0 0 6px rgba(255,255,255,0.05);
+    position:relative;
+    animation:spin 14s linear infinite;
+    animation-play-state:paused;
+  }
+  .disc.spin{animation-play-state:running;}
+  .disc-inner{
+    width:78%;height:78%;border-radius:50%;
+    background:var(--bg-1);
+    display:flex;align-items:center;justify-content:center;
+    font-size:15px;color:var(--ink-dim);
+    overflow:hidden;
+    background-size:cover;background-position:center;
+  }
+  .disc-inner .placeholder-emoji{font-size:42px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .time-combined{
+    text-align:center;font-family:'Kanit';font-weight:500;font-size:14px;
+    color:var(--ink-dim);letter-spacing:.5px;margin-top:12px;
+  }
+
+  video#videoEl{
+    width:100%;
+    max-height:52vh;
+    border-radius:var(--radius);
+    background:#000;
+    display:none;
+    box-shadow:var(--shadow);
+  }
+
+  .eq{
+    display:flex;align-items:flex-end;gap:3px;height:22px;justify-content:center;margin-top:14px;
+  }
+  .eq span{
+    width:4px;background:var(--accent);border-radius:3px;height:6px;
+    animation:eqbar 1.1s ease-in-out infinite;
+    opacity:.5;
+  }
+  .eq.playing span{opacity:1;}
+  .eq span:nth-child(1){animation-delay:-1.1s;}
+  .eq span:nth-child(2){animation-delay:-.8s;}
+  .eq span:nth-child(3){animation-delay:-.5s;}
+  .eq span:nth-child(4){animation-delay:-.2s;}
+  .eq span:nth-child(5){animation-delay:-.95s;}
+  @keyframes eqbar{
+    0%,100%{height:5px;} 50%{height:20px;}
+  }
+
+  .lyric-hint{
+    text-align:center;color:var(--ink-dim);font-size:12.5px;margin:14px 24px 0;line-height:1.6;
+  }
+
+  .progress-wrap{padding:22px 26px 0;}
+  .progress-bar{
+    -webkit-appearance:none;appearance:none;
+    width:100%;height:4px;border-radius:4px;
+    background:linear-gradient(to right, var(--accent) 0%, var(--accent) 0%, rgba(255,255,255,.15) 0%);
+    cursor:pointer;
+  }
+  .progress-bar::-webkit-slider-thumb{
+    -webkit-appearance:none;width:13px;height:13px;border-radius:50%;
+    background:var(--accent);box-shadow:0 0 0 4px rgba(168,255,96,.2);
+  }
+  .progress-bar::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:var(--accent);border:none;}
+
+  .controls{
+    display:flex;align-items:center;justify-content:center;gap:26px;
+    padding:20px 20px 6px;
+  }
+  .ctrl-main{
+    width:64px;height:64px;border-radius:50%;
+    background:var(--accent);color:#0c1b1e;
+    border:none;font-size:22px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 10px 28px rgba(168,255,96,.35);
+  }
+  .ctrl-main:hover{filter:brightness(1.05);}
+  .ctrl-side{
+    background:none;border:none;color:var(--ink);font-size:22px;cursor:pointer;padding:6px;
+  }
+  .ctrl-side:hover, .ctrl-side:focus-visible{color:var(--accent);outline:none;}
+
+  .sub-controls{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:10px 24px 4px;color:var(--ink-dim);font-size:19px;
+  }
+  .sub-controls button{background:none;border:none;color:inherit;cursor:pointer;padding:6px;}
+  .sub-controls button.on{color:var(--accent);}
+  .sub-controls button:hover, .sub-controls button:focus-visible{color:var(--accent);outline:none;}
+
+  .speed-wrap{padding:16px 24px 4px;}
+  .speed-label{
+    display:flex;justify-content:space-between;font-size:12px;color:var(--ink-dim);font-family:'Kanit';margin-bottom:6px;
+  }
+  .speed-label b{color:var(--accent);}
+  input[type=range].speed{
+    -webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;
+    background:rgba(255,255,255,.15);
+  }
+  input[type=range].speed::-webkit-slider-thumb{
+    -webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--pink);
+  }
+  input[type=range].speed::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:var(--pink);border:none;}
+
+  .np-nowplaying{padding:18px 24px 10px;}
+  .track-row.now-playing{
+    border-color:var(--accent);
+    background:rgba(168,255,96,0.08);
+    cursor:default;
+  }
+  .track-row.now-playing:hover{border-color:var(--accent);}
+  .track-row.active{
+    border-color:var(--accent);
+    background:rgba(168,255,96,0.06);
+  }
+  .track-row .now-icon{font-size:16px;color:var(--accent);flex-shrink:0;}
+
+  /* ---------- Bottom nav ---------- */
+  .bottomnav{
+    position:fixed;left:0;right:0;bottom:0;
+    max-width:480px;margin:0 auto;
+    display:flex;
+    background:rgba(10,20,21,.85);
+    backdrop-filter:blur(16px);
+    border-top:1px solid var(--glass-line);
+    z-index:5;
+  }
+  @media (min-width:900px){ .bottomnav{max-width:1100px;} }
+  .navbtn{
+    flex:1;background:none;border:none;color:var(--ink-dim);
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+    padding:11px 4px 9px;font-size:19px;cursor:pointer;font-family:'Kanit';
+  }
+  .navbtn span.lbl{font-size:10.5px;}
+  .navbtn.active{color:var(--accent);}
+  .navbtn:hover{color:var(--accent);}
+
+  /* ---------- Equalizer page ---------- */
+  .eq-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 20px 4px;
+  }
+  .eq-header h2{margin:0;font-size:18px;font-weight:600;}
+  .eq-power{
+    width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;
+    background:conic-gradient(var(--accent), var(--pink), var(--accent));
+    color:#0c1b1e;font-size:15px;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 0 2px rgba(255,255,255,.08);
+  }
+  .eq-power.off{background:rgba(255,255,255,.12);color:var(--ink-dim);}
+  .eq-tabs{
+    display:flex;align-items:center;gap:10px;padding:14px 20px 4px;
+  }
+  .eq-tabs .eq-custom{
+    display:flex;align-items:center;gap:6px;
+    background:var(--glass);border:1px solid var(--glass-line);border-radius:12px;
+    padding:9px 14px;font-family:'Kanit';font-size:13px;color:var(--ink);
+  }
+  .eq-preset{
+    background:var(--glass);border:1px solid var(--glass-line);border-radius:12px;
+    width:40px;height:40px;font-size:16px;cursor:pointer;color:var(--ink-dim);
+  }
+  .eq-preset:hover, .eq-preset.active{border-color:var(--accent);color:var(--accent);}
+
+  .eq-knobs{display:flex;justify-content:space-around;padding:26px 20px 10px;}
+  .knob-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .knob{
+    --val:0;
+    width:84px;height:84px;border-radius:50%;
+    background:conic-gradient(var(--pink) calc(var(--val)*1%), rgba(255,255,255,.10) 0);
+    display:flex;align-items:center;justify-content:center;position:relative;
+    touch-action:none;cursor:ns-resize;
+    box-shadow:0 10px 26px rgba(0,0,0,.4);
+  }
+  .knob::before{
+    content:"";position:absolute;inset:9px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, var(--teal-glow), var(--bg-2));
+    box-shadow:inset 0 4px 10px rgba(0,0,0,.55);
+  }
+  .knob .indicator{
+    position:absolute;width:3px;height:26px;background:var(--ink);border-radius:2px;
+    top:12px;left:50%;margin-left:-1.5px;transform-origin:1.5px 30px;
+    transform:rotate(var(--rot,-135deg));
+  }
+  .knob-label{font-family:'Kanit';font-size:12.5px;color:var(--ink-dim);}
+  .knob-val{font-family:'Kanit';font-size:11px;color:var(--pink);}
+
+  .eq-toggles{display:flex;justify-content:space-between;padding:18px 24px 0;}
+  .toggle-sw{
+    width:34px;height:19px;border-radius:20px;background:rgba(255,255,255,.12);
+    border:1px solid var(--glass-line);position:relative;cursor:pointer;flex-shrink:0;
+  }
+  .toggle-sw::after{
+    content:"";position:absolute;width:14px;height:14px;border-radius:50%;
+    background:var(--ink-dim);top:2px;left:2px;transition:.15s ease;
+  }
+  .toggle-sw.on{background:rgba(168,255,96,.18);border-color:var(--accent);}
+  .toggle-sw.on::after{left:17px;background:var(--accent);}
+  .toggle-lbl{font-size:10px;color:var(--ink-dim);text-align:center;margin-top:4px;font-family:'Kanit';}
+
+  .eq-bands{display:flex;justify-content:space-between;padding:16px 22px 26px;gap:6px;}
+  .band-col{display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;}
+  input[type=range].band-slider{
+    -webkit-appearance:slider-vertical;appearance:slider-vertical;
+    writing-mode:vertical-lr;direction:rtl;
+    width:6px;height:130px;border-radius:6px;background:rgba(255,255,255,.12);
+  }
+  input[type=range].band-slider::-webkit-slider-thumb{
+    -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+    background:linear-gradient(135deg,var(--pink),var(--teal-glow));
+    box-shadow:0 0 0 3px rgba(255,255,255,.08);
+  }
+  input[type=range].band-slider::-moz-range-thumb{
+    width:16px;height:16px;border-radius:50%;border:none;
+    background:linear-gradient(135deg,var(--pink),var(--teal-glow));
+  }
+  .band-freq{font-size:10.5px;color:var(--ink-dim);font-family:'Kanit';}
+
+  /* Fullscreen mode */
+  .app.fs-mode .page:not(#playerPage){display:none !important;}
+  .app.fs-mode .bottomnav, .app.fs-mode .player-top, .app.fs-mode .badges,
+  .app.fs-mode .lyric-hint, .app.fs-mode .np-nowplaying, .app.fs-mode .section-label{display:none !important;}
+  .app.fs-mode #playerPage{padding:0;height:100vh;display:flex;flex-direction:column;justify-content:center;}
+  .app.fs-mode video#videoEl{max-height:100vh;border-radius:0;}
+  .app.fs-mode .disc{width:min(70vw,320px);}
+
+  ::selection{background:var(--accent);color:#0c1b1e;}
+  a{color:var(--accent);}
+</style>
+</head>
+<body>
+
+<div class="blob b1"></div>
+<div class="blob b2"></div>
+<div class="blob b3"></div>
+
+<div class="app" id="app">
+
+  <!-- ============ TOP BAR (library pages only) ============ -->
+  <div class="topbar" id="topbar">
+    <div class="brand">
+      <div class="avatar">🎧</div>
+      <div class="title">Wave Music Player<small>คลื่นเพลงเพราะ ฟังเพลงสบายๆ</small></div>
+    </div>
+    <div class="top-actions">
+      <button title="เพลย์ลิสต์" onclick="showPage('playlistPage')">🎶</button>
+      <button title="รายการโปรด" onclick="showPage('favPage')">❤️</button>
+      <button title="เกี่ยวกับ" onclick="alert('คลื่นเพลง — เล่นเพลง/วิดีโอจากไฟล์ในเครื่องหรือจาก URL ได้ทันที ไม่ต้องติดตั้งแอป')">📡</button>
+    </div>
+  </div>
+
+  <!-- ============ PAGE 1: STATION / HOME ============ -->
+  <div class="page active" id="homePage">
+
+    <div class="searchbar">
+      <span class="icon">🔍</span>
+      <input id="searchInput" type="text" placeholder="ค้นหาเพลง ศิลปิน หรือสถานี..." oninput="onSearch(this.value)">
+    </div>
+
+    <div class="a2hs-banner" id="a2hsBanner" style="display:none;">
+      <span>📲 เพื่อให้เล่นเพลงตอนล็อกจอได้เสถียรขึ้น แนะนำให้กด <b>แชร์ → เพิ่มไปยังหน้าจอโฮม</b></span>
+      <button onclick="dismissA2hsBanner()" title="ปิด">✕</button>
+    </div>
+
+<a href="./fmradio.html" style="text-decoration: none; color: inherit;">
+  <div class="hero"> 
+    <div class="hero-text">สถานีวิทยุ ออนไลน์ </div> 
+  </div>
+</a>
+
+    <div class="section-label">สถานีฮิต</div>
+    <div class="grid" id="stationGrid"></div>
+
+    <div class="section-label">🗃️ เล่นจากไฟล์ในเครื่อง</div>
+    <div class="io-row">
+      <button class="btn primary" onclick="document.getElementById('audioFileInput').click()">🎵 เปิดไฟล์ MP3</button>
+      <button class="btn primary" onclick="document.getElementById('videoFileInput').click()">🎬 เปิดไฟล์ MP4</button>
+    </div>
+    <input class="hidden-input" type="file" id="audioFileInput" accept="audio/*,.mp3,.m4a,.aac,.wav,.flac,.ogg" multiple onchange="importFiles(this.files,'audio'); this.value='';">
+    <input class="hidden-input" type="file" id="videoFileInput" accept="video/*,.mp4,.mov,.m4v,.webm" multiple onchange="importFiles(this.files,'video'); this.value='';">
+
+    <div class="section-label">🌐 เล่นจาก URL</div>
+    <div class="io-row">
+      <input type="text" id="urlInput" placeholder="วางลิงก์ไฟล์ .mp3 / .mp4 ที่นี่">
+      <button class="btn primary" onclick="playFromUrl()">▶ เล่น</button>
+    </div>
+
+    <div class="section-label">ธีม</div>
+    <div class="grid" id="themeGrid"></div>
+  </div>
+
+  <!-- ============ PAGE: FAVORITES ============ -->
+  <div class="page" id="favPage">
+    <div class="section-label">❤️ รายการโปรดของฉัน</div>
+    <div id="favList"></div>
+  </div>
+
+  <!-- ============ PAGE: PLAYLIST ============ -->
+  <div class="page" id="playlistPage">
+    <div class="section-label">🎶 เพลย์ลิสต์ของฉัน</div>
+    <div class="io-row">
+      <button class="btn primary" onclick="document.getElementById('audioFileInput').click()">🎵 นำเข้า MP3 (เลือกได้หลายไฟล์)</button>
+    </div>
+    <div class="io-row">
+      <button class="btn primary" onclick="document.getElementById('videoFileInput').click()">🎬 นำเข้า MP4 (เลือกได้หลายไฟล์)</button>
+    </div>
+    <div class="empty-hint" style="margin-top:12px;border:none;padding:8px 4px;text-align:left;">
+      📌 เพลงที่นำเข้าจะถูกบันทึกไว้ในเบราว์เซอร์นี้โดยอัตโนมัติ เปิดหน้าเว็บใหม่ก็ยังอยู่
+    </div>
+    <div class="section-label">รายการทั้งหมด (<span id="playlistCount">0</span>)</div>
+    <div id="playlistList"></div>
+  </div>
+
+  <!-- ============ PAGE 2: NOW PLAYING ============ -->
+  <div class="page" id="playerPage">
+    <div class="player-top">
+      <button class="icon-btn" onclick="showPage('homePage')" title="ย้อนกลับ">←</button>
+      <div class="np-title-wrap">
+        <div class="np-title" id="npTitle">ยังไม่ได้เลือกเพลง</div>
+        <div class="np-artist" id="npArtist">เปิดไฟล์ หรือใส่ลิงก์เพื่อเริ่มฟัง</div>
+      </div>
+
+      <button class="icon-btn" onclick="openEqualizer()" title="อีควอไลเซอร์">🎚️</button>
+    </div>
+
+    <div class="badges">
+      <span class="badge" id="badgeMV">MV ▶</span>
+      <span class="badge on">dts</span>
+      <span class="badge" id="badgeFav" onclick="toggleFavoriteCurrent()" style="cursor:pointer;">🖤 โปรด</span>
+    </div>
+
+    <div class="art-stage">
+      <div class="disc-ring" id="discRing">
+        <svg viewBox="0 0 220 220">
+          <circle class="ring-bg" cx="110" cy="110" r="100"></circle>
+          <circle class="ring-fg" id="ringFg" cx="110" cy="110" r="100"></circle>
+        </svg>
+        <div class="disc" id="disc">
+          <div class="disc-inner" id="discInner"><span class="placeholder-emoji">🎼</span></div>
+        </div>
+      </div>
+      <video id="videoEl" controls playsinline></video>
+    </div>
+
+    <div class="eq" id="eq">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+
+    <div class="time-combined" id="timeCombined">0:00 / 0:00</div>
+
+    <div class="lyric-hint" id="lyricHint">🎼 แสดงชื่อเพลง / ปกอัลบั้ม ระหว่างเล่นที่นี่</div>
+
+    <div class="progress-wrap">
+      <input type="range" class="progress-bar" id="progressBar" value="0" min="0" max="100" step="0.1" oninput="seek(this.value)">
+    </div>
+
+    <div class="controls">
+      <button class="ctrl-side" onclick="skip(-10)" title="ถอยหลัง 10 วิ">«</button>
+      <button class="ctrl-main" id="playBtn" onclick="togglePlay()" title="เล่น/หยุด">▶</button>
+      <button class="ctrl-side" onclick="skip(10)" title="เดินหน้า 10 วิ">»</button>
+    </div>
+
+    <div class="sub-controls">
+      <button id="loopBtn" onclick="toggleLoop()" title="วนซ้ำ">↻</button>
+      <button onclick="setVolumeStep()" id="volBtn" title="เสียง">🔊</button>
+      <button onclick="showPage('favPage')" title="รายการโปรด">❤️</button>
+
+    </div>
+
+    <div class="speed-wrap">
+      <div class="speed-label">» ความเร็วเล่น <b id="speedVal">1.0x</b></div>
+      <input type="range" class="speed" id="speedSlider" min="0.5" max="2" step="0.1" value="1" oninput="setSpeed(this.value)">
+    </div>
+
+    <div class="np-nowplaying">
+      <div class="section-label" style="margin-top:0;">🎵 กำลังเล่นอยู่</div>
+      <div class="track-row now-playing" id="nowPlayingRow"></div>
+
+      <div class="section-label">📀 เพลย์ลิสต์ทั้งหมด</div>
+      <div id="npPlaylistList"></div>
+    </div>
+  </div>
+
+  <!-- ============ PAGE 3: EQUALIZER ============ -->
+  <div class="page" id="eqPage">
+    <div class="eq-header">
+      <button class="icon-btn" onclick="showPage('playerPage')" title="ย้อนกลับ">←</button>
+      <h2>Equalizer</h2>
+      <button class="eq-power on" id="eqPowerBtn" onclick="toggleEqPower()" title="เปิด/ปิด อีควอไลเซอร์">⏻</button>
+    </div>
+
+    <div class="eq-tabs">
+      <div class="eq-custom">Customize <span>+</span></div>
+      <button class="eq-preset active" id="presetFlat" onclick="applyPreset('flat')" title="ปกติ">🎵</button>
+      <button class="eq-preset" id="presetBass" onclick="applyPreset('bass')" title="เบสหนัก">📊</button>
+      <button class="eq-preset" id="presetVocal" onclick="applyPreset('vocal')" title="เสียงร้องชัด">🎹</button>
+    </div>
+
+    <div class="eq-knobs">
+      <div class="knob-wrap">
+        <div class="knob" id="knobBass" data-val="0">
+          <div class="indicator"></div>
+        </div>
+        <div class="knob-label">Bassboost</div>
+        <div class="knob-val" id="knobBassVal">0%</div>
+      </div>
+      <div class="knob-wrap">
+        <div class="knob" id="knobVirt" data-val="0">
+          <div class="indicator"></div>
+        </div>
+        <div class="knob-label">Virtualizer</div>
+        <div class="knob-val" id="knobVirtVal">0%</div>
+      </div>
+    </div>
+
+    <div class="eq-toggles" id="eqToggles"></div>
+
+    <div class="eq-bands" id="eqBands"></div>
+
+    <div class="lyric-hint" style="margin:0 20px 20px;">🎚️ ปรับแถบความถี่ด้านล่างเพื่อแต่งเสียงเพลงที่กำลังเล่นแบบเรียลไทม์</div>
+  </div>
+
+  <!-- ============ BOTTOM NAV ============ -->
+  <div class="bottomnav">
+    <button class="navbtn active" id="navHome" onclick="showPage('homePage')">🏠<span class="lbl">สถานี</span></button>
+    <button class="navbtn" id="navPlaylist" onclick="showPage('playlistPage')">🎶<span class="lbl">เพลย์ลิสต์</span></button>
+    <button class="navbtn" id="navFav" onclick="showPage('favPage')">❤️<span class="lbl">โปรด</span></button>
+    <button class="navbtn" id="navPlayer" onclick="showPage('playerPage')">🎧<span class="lbl">กำลังเล่น</span></button>
+  </div>
+
+</div>
+
+<audio id="audioEl"></audio>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+
+<script>
+/* ===================== Data ===================== */
+const stations = [
+  {name:"เพลงดังวัยเรียน", emoji:"🎓", grad:"linear-gradient(135deg,#ff6f91,#7a4ae0)", tag:""},
+  {name:"เหงาๆ เศร้าๆ", emoji:"🌧️", grad:"linear-gradient(135deg,#374b6b,#1b2735)", tag:""},
+  {name:"สถานีเพลงเศร้า", emoji:"💔", grad:"linear-gradient(135deg,#2c2c2c,#556270)", tag:""},
+  {name:"Cover ดีเวอร์", emoji:"🎤", grad:"linear-gradient(135deg,#f7971e,#ffd200)", tag:""},
+  {name:"สากลฟังเพราะ", emoji:"🎧", grad:"linear-gradient(135deg,#ff6f91,#a8ff60)", tag:""},
+  {name:"ยิ่งฟังยิ่งหล่อ", emoji:"🎸", grad:"linear-gradient(135deg,#8e2de2,#4a00e0)", tag:""},
+];
+const themes = [
+  {name:"กลางคืนโทนเขียว", emoji:"🌙", grad:"linear-gradient(135deg,#0e2f31,#1f5f5a)"},
+  {name:"นีออนชมพู", emoji:"✨", grad:"linear-gradient(135deg,#ff6f91,#3a1c71)"},
+  {name:"คลาสสิกทอง", emoji:"🎻", grad:"linear-gradient(135deg,#8e6b1f,#3a2c0f)"},
+  {name:"ทะเลยามเย็น", emoji:"🌊", grad:"linear-gradient(135deg,#1c92d2,#f2fcfe)"},
+  {name:"ป่าลึกลับ", emoji:"🌲", grad:"linear-gradient(135deg,#134e5e,#71b280)"},
+  {name:"เมืองยามค่ำ", emoji:"🏙️", grad:"linear-gradient(135deg,#232526,#414345)"},
+];
+
+let favorites = [];        // in-memory favorites list (session only)
+let playlist = [];         // tracks imported from local files, persisted on this device
+let currentQueueIndex = -1;// index of the currently-playing track within `playlist`, -1 if not from playlist
+let currentTrack = null;   // {title, artist, src, kind, coverEmoji, coverUrl}
+let isLooping = false;
+let mediaEl = null;        // points to audioEl or videoEl depending on kind
+
+/* ----- Equalizer state ----- */
+let audioCtx = null;
+const eqChains = { audio:null, video:null };
+const eqState = { power:true, bass:0, virt:0, bands:[0,0,0,0,0], bandOn:[true,true,true,true,true] };
+const eqBandLabels = ['60hz','230hz','910hz','4khz','14khz'];
+
+/* ===================== Local storage (device) ===================== */
+/* Song files + covers are stored in IndexedDB (binary-friendly); the
+   lightweight metadata list is mirrored to localStorage so the playlist
+   is rebuilt automatically next time this page is opened on this device. */
+const DB_NAME='musicWaveDB', DB_VERSION=1, STORE_NAME='mediaFiles', LS_KEY='musicWave_playlist_meta';
+function idbOpen(){
+  return new Promise((resolve,reject)=>{
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = ()=>{ req.result.createObjectStore(STORE_NAME,{keyPath:'id'}); };
+    req.onsuccess = ()=>resolve(req.result);
+    req.onerror = ()=>reject(req.error);
+  });
+}
+async function idbPut(record){
+  try{
+    const db = await idbOpen();
+    return new Promise((resolve,reject)=>{
+      const tx = db.transaction(STORE_NAME,'readwrite');
+      tx.objectStore(STORE_NAME).put(record);
+      tx.oncomplete = ()=>resolve();
+      tx.onerror = ()=>reject(tx.error);
+    });
+  }catch(e){ console.warn('บันทึกไฟล์ลงเครื่องไม่สำเร็จ', e); }
+}
+async function idbGet(id){
+  try{
+    const db = await idbOpen();
+    return new Promise((resolve,reject)=>{
+      const tx = db.transaction(STORE_NAME,'readonly');
+      const req = tx.objectStore(STORE_NAME).get(id);
+      req.onsuccess = ()=>resolve(req.result);
+      req.onerror = ()=>reject(req.error);
+    });
+  }catch(e){ return null; }
+}
+async function idbDelete(id){
+  try{
+    const db = await idbOpen();
+    return new Promise((resolve,reject)=>{
+      const tx = db.transaction(STORE_NAME,'readwrite');
+      tx.objectStore(STORE_NAME).delete(id);
+      tx.oncomplete = ()=>resolve();
+      tx.onerror = ()=>reject(tx.error);
+    });
+  }catch(e){}
+}
+function savePlaylistMeta(){
+  try{
+    const meta = playlist.map(t=>({id:t.id, title:t.title, artist:t.artist, kind:t.kind}));
+    localStorage.setItem(LS_KEY, JSON.stringify(meta));
+  }catch(e){ console.warn('บันทึกรายชื่อเพลย์ลิสต์ไม่สำเร็จ', e); }
+}
+async function hydratePlaylistFromDevice(){
+  let meta = [];
+  try{ meta = JSON.parse(localStorage.getItem(LS_KEY) || '[]'); }catch(e){ meta = []; }
+  for(const m of meta){
+    const rec = await idbGet(m.id);
+    if(!rec || !rec.fileBlob) continue;
+    const src = URL.createObjectURL(rec.fileBlob);
+    const coverUrl = rec.coverBlob ? URL.createObjectURL(rec.coverBlob) : null;
+    playlist.push({...m, src, coverUrl});
+  }
+  renderPlaylist();
+}
+
+/* ===================== Cover art extraction ===================== */
+function extractAudioCover(file){
+  return new Promise((resolve)=>{
+    if(!window.jsmediatags){ resolve(null); return; }
+    try{
+      window.jsmediatags.read(file, {
+        onSuccess: tag=>{
+          const pic = tag && tag.tags && tag.tags.picture;
+          if(pic && pic.data){
+            const bytes = new Uint8Array(pic.data);
+            resolve(new Blob([bytes], {type: pic.format || 'image/jpeg'}));
+          } else resolve(null);
+        },
+        onError: ()=>resolve(null)
+      });
+    }catch(e){ resolve(null); }
+  });
+}
+function extractVideoThumb(file){
+  return new Promise((resolve)=>{
+    try{
+      const url = URL.createObjectURL(file);
+      const v = document.createElement('video');
+      v.preload = 'metadata'; v.muted = true; v.playsInline = true; v.src = url;
+      let done = false;
+      function grab(){
+        if(done) return; done = true;
+        try{
+          const canvas = document.createElement('canvas');
+          canvas.width = v.videoWidth || 320; canvas.height = v.videoHeight || 180;
+          canvas.getContext('2d').drawImage(v,0,0,canvas.width,canvas.height);
+          canvas.toBlob(blob=>{ URL.revokeObjectURL(url); resolve(blob); }, 'image/jpeg', 0.8);
+        }catch(e){ URL.revokeObjectURL(url); resolve(null); }
+      }
+      v.addEventListener('loadeddata', ()=>{ try{ v.currentTime = Math.min(1,(v.duration||2)/2); }catch(e){ grab(); } });
+      v.addEventListener('seeked', grab);
+      v.addEventListener('error', ()=>{ URL.revokeObjectURL(url); resolve(null); });
+      setTimeout(()=>{ if(!done){ done=true; URL.revokeObjectURL(url); resolve(null); } }, 4000);
+    }catch(e){ resolve(null); }
+  });
+}
+
+/* ===================== Playlist ===================== */
+async function importFiles(fileList, kind){
+  const files = Array.from(fileList || []);
+  if(files.length === 0) return;
+  const addedIds = [];
+  for(const file of files){
+    const id = 'trk_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+    const coverBlob = kind === 'audio' ? await extractAudioCover(file) : await extractVideoThumb(file);
+    await idbPut({id, fileBlob:file, coverBlob});
+    const track = {
+      id,
+      title: file.name.replace(/\.[^/.]+$/, ''),
+      artist: 'ไฟล์จากเครื่อง',
+      kind,
+      src: URL.createObjectURL(file),
+      coverUrl: coverBlob ? URL.createObjectURL(coverBlob) : null
+    };
+    playlist.push(track);
+    addedIds.push(id);
+  }
+  savePlaylistMeta();
+  renderPlaylist();
+  playFromPlaylistById(addedIds[0]);
+  showPage('playerPage');
+}
+function renderPlaylist(){
+  const wrap = document.getElementById('playlistList');
+  const countEl = document.getElementById('playlistCount');
+  if(countEl) countEl.textContent = playlist.length;
+  if(wrap){
+    if(playlist.length === 0){
+      wrap.innerHTML = `<div class="empty-hint">ยังไม่มีเพลงในเพลย์ลิสต์ — กดปุ่มด้านบนเพื่อนำเข้าเพลง/วิดีโอได้ทีละหลายไฟล์</div>`;
+    } else {
+      wrap.innerHTML = playlist.map((t,i)=>`
+        <div class="track-row" onclick="playFromPlaylist(${i})">
+          <div class="art"${t.coverUrl ? ` style="background-image:url('${t.coverUrl}');background-size:cover;background-position:center;"` : ''}>${t.coverUrl ? '' : (t.kind==='video' ? '🎬' : '🎵')}</div>
+          <div class="meta">
+            <div class="t">${t.title}</div>
+            <div class="a">${t.artist || ''}</div>
+          </div>
+          <button class="heart" onclick="event.stopPropagation(); removeFromPlaylist(${i})" title="ลบออกจากเพลย์ลิสต์">✕</button>
+        </div>`).join('');
+    }
+  }
+  renderNowPlayingList();
+}
+function renderNowPlayingList(){
+  const npRow = document.getElementById('nowPlayingRow');
+  if(npRow){
+    if(currentTrack){
+      npRow.innerHTML = `
+        <div class="art"${currentTrack.coverUrl ? ` style="background-image:url('${currentTrack.coverUrl}');background-size:cover;background-position:center;"` : ''}>${currentTrack.coverUrl ? '' : (currentTrack.kind==='video' ? '🎬' : '🎵')}</div>
+        <div class="meta">
+          <div class="t">${currentTrack.title}</div>
+          <div class="a">${currentTrack.artist || ''}</div>
+        </div>
+        <span class="now-icon">${mediaEl && !mediaEl.paused ? '🔊' : '⏸'}</span>`;
+    } else {
+      npRow.innerHTML = `<div class="empty-hint" style="width:100%;">ยังไม่ได้เลือกเพลง</div>`;
+    }
+  }
+  const listWrap = document.getElementById('npPlaylistList');
+  if(!listWrap) return;
+  if(playlist.length === 0){
+    listWrap.innerHTML = `<div class="empty-hint">ยังไม่มีเพลงในเพลย์ลิสต์ — นำเข้าเพลงจากหน้า "เพลย์ลิสต์" เพื่อแสดงที่นี่</div>`;
+    return;
+  }
+  listWrap.innerHTML = playlist.map((t,i)=>`
+    <div class="track-row ${i===currentQueueIndex ? 'active' : ''}" onclick="playFromPlaylist(${i})">
+      <div class="art"${t.coverUrl ? ` style="background-image:url('${t.coverUrl}');background-size:cover;background-position:center;"` : ''}>${t.coverUrl ? '' : (t.kind==='video' ? '🎬' : '🎵')}</div>
+      <div class="meta">
+        <div class="t">${t.title}</div>
+        <div class="a">${t.artist || ''}</div>
+      </div>
+      ${i===currentQueueIndex ? '<span class="now-icon">▶</span>' : ''}
+    </div>`).join('');
+}
+function playFromPlaylist(i){
+  if(i < 0 || i >= playlist.length) return;
+  currentQueueIndex = i;
+  loadTrack(playlist[i]);
+  showPage('playerPage');
+}
+function playFromPlaylistById(id){
+  const i = playlist.findIndex(t=>t.id === id);
+  if(i >= 0) playFromPlaylist(i);
+}
+function removeFromPlaylist(i){
+  const t = playlist[i];
+  playlist.splice(i,1);
+  savePlaylistMeta();
+  if(t) idbDelete(t.id);
+  if(currentQueueIndex === i) currentQueueIndex = -1;
+  else if(currentQueueIndex > i) currentQueueIndex--;
+  renderPlaylist();
+}
+function playNextInQueue(){
+  if(currentQueueIndex < 0 || playlist.length === 0) return;
+  playFromPlaylist((currentQueueIndex + 1) % playlist.length);
+}
+function playPrevInQueue(){
+  if(currentQueueIndex < 0 || playlist.length === 0) return;
+  playFromPlaylist((currentQueueIndex - 1 + playlist.length) % playlist.length);
+}
+
+const audioEl = document.getElementById('audioEl');
+const videoEl = document.getElementById('videoEl');
+const app = document.getElementById('app');
+
+/* ===================== Render library ===================== */
+function renderGrid(el, list, onClickFn){
+  el.innerHTML = list.map((item,i)=>`
+    <div class="card" tabindex="0" onclick="${onClickFn}(${i})">
+      <div class="art" style="background:${item.grad}">
+        <span class="tag">Music</span>
+        <span>${item.emoji}</span>
+      </div>
+      <div class="name">${item.name}</div>
+    </div>`).join('');
+}
+renderGrid(document.getElementById('stationGrid'), stations, 'openStation');
+renderGrid(document.getElementById('themeGrid'), themes, 'openTheme');
+
+function openStation(i){
+  const s = stations[i];
+  currentQueueIndex = -1;
+  loadTrack({title:s.name, artist:"สถานีเพลง · คลื่นเพลง", src:null, kind:'audio', coverEmoji:s.emoji});
+  showPage('playerPage');
+  document.getElementById('lyricHint').textContent = "🌐 สถานีนี้เป็นตัวอย่าง — ใส่ลิงก์เพลง MP3 ด้านล่างเพื่อเริ่มฟัง";
+}
+function openTheme(i){
+  const t = themes[i];
+  document.documentElement.style.setProperty('--accent', t.grad.includes('ff6f91')?'#ff9fc0':'#a8ff60');
+  currentQueueIndex = -1;
+  loadTrack({title:t.name, artist:"ธีมพื้นหลัง", src:null, kind:'audio', coverEmoji:t.emoji});
+  showPage('playerPage');
+}
+
+function onSearch(q){
+  q = q.trim().toLowerCase();
+  const filtered = stations.filter(s=>s.name.toLowerCase().includes(q));
+  renderGrid(document.getElementById('stationGrid'), q ? filtered : stations, 'openStation');
+}
+
+/* ===================== Page navigation ===================== */
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.navbtn').forEach(b=>b.classList.remove('active'));
+  if(id==='homePage') document.getElementById('navHome').classList.add('active');
+  if(id==='favPage'){ document.getElementById('navFav').classList.add('active'); renderFavorites(); }
+  if(id==='playlistPage'){ document.getElementById('navPlaylist').classList.add('active'); renderPlaylist(); }
+  if(id==='playerPage'){ document.getElementById('navPlayer').classList.add('active'); renderNowPlayingList(); }
+  if(id==='eqPage') document.getElementById('navPlayer').classList.add('active');
+  document.getElementById('topbar').style.display = (id==='playerPage'||id==='eqPage') ? 'none' : 'flex';
+}
+function openEqualizer(){ showPage('eqPage'); }
+
+/* ===================== Favorites ===================== */
+function renderFavorites(){
+  const wrap = document.getElementById('favList');
+  if(favorites.length===0){
+    wrap.innerHTML = `<div class="empty-hint">ยังไม่มีเพลงโปรด — กดไอคอน 🖤 ระหว่างฟังเพลงเพื่อบันทึกไว้ที่นี่</div>`;
+    return;
+  }
+  wrap.innerHTML = favorites.map((f,i)=>`
+    <div class="track-row" onclick="playFavorite(${i})">
+      <div class="art">${f.coverEmoji||'🎵'}</div>
+      <div class="meta">
+        <div class="t">${f.title}</div>
+        <div class="a">${f.artist||''}</div>
+      </div>
+      <button class="heart" onclick="event.stopPropagation(); removeFavorite(${i})">❤️</button>
+    </div>`).join('');
+}
+function playFavorite(i){ loadTrack(favorites[i]); showPage('playerPage'); }
+function removeFavorite(i){ favorites.splice(i,1); renderFavorites(); updateFavBadge(); }
+function toggleFavoriteCurrent(){
+  if(!currentTrack) return;
+  const idx = favorites.findIndex(f=>f.title===currentTrack.title && f.src===currentTrack.src);
+  if(idx>=0) favorites.splice(idx,1);
+  else favorites.push({...currentTrack});
+  updateFavBadge();
+}
+function updateFavBadge(){
+  const b = document.getElementById('badgeFav');
+  const isFav = currentTrack && favorites.some(f=>f.title===currentTrack.title && f.src===currentTrack.src);
+  b.textContent = isFav ? "❤️ โปรดแล้ว" : "🖤 โปรด";
+  b.classList.toggle('on', !!isFav);
+}
+
+/* ===================== Load / play track ===================== */
+function loadTrack(track){
+  currentTrack = track;
+  document.getElementById('npTitle').textContent = track.title;
+  document.getElementById('npArtist').textContent = track.artist || '';
+  document.getElementById('badgeMV').style.display = track.kind==='video' ? 'inline-block' : 'none';
+
+  const discInner = document.getElementById('discInner');
+  if(track.coverUrl){
+    discInner.style.backgroundImage = `url('${track.coverUrl}')`;
+    discInner.innerHTML = '';
+  } else {
+    discInner.style.backgroundImage = 'none';
+    discInner.innerHTML = `<span class="placeholder-emoji">${track.coverEmoji||'🎼'}</span>`;
+  }
+
+  document.getElementById('ringFg').style.strokeDashoffset = 628.3;
+  document.getElementById('timeCombined').textContent = '0:00 / 0:00';
+  document.getElementById('progressBar').value = 0;
+
+  audioEl.pause(); videoEl.pause();
+  if(track.kind==='video'){
+    videoEl.style.display='block';
+    document.getElementById('disc').style.display='none';
+    if(track.src) videoEl.src = track.src;
+    mediaEl = videoEl;
+  } else {
+    videoEl.style.display='none';
+    document.getElementById('disc').style.display='flex';
+    if(track.src) audioEl.src = track.src;
+    mediaEl = audioEl;
+  }
+  bindMediaEvents(mediaEl);
+  setSpeed(document.getElementById('speedSlider').value);
+  if(track.src){
+    ensureAudioGraph();
+    if(audioCtx && audioCtx.state==='suspended') audioCtx.resume().catch(()=>{});
+    mediaEl.play().catch(()=>{ /* autoplay might be blocked until user gesture */ });
+  }
+  updatePlayIcon();
+  updateFavBadge();
+  renderNowPlayingList();
+  updateMediaSessionMetadata(track);
+}
+
+function playFromUrl(fromPlayerPage){
+  const inputId = fromPlayerPage ? 'urlInput2' : 'urlInput';
+  const url = document.getElementById(inputId).value.trim();
+  if(!url){ return; }
+  const isVideo = /\.(mp4|webm|ogg|mov)(\?.*)?$/i.test(url);
+  currentQueueIndex = -1;
+  loadTrack({title: url.split('/').pop().split('?')[0] || 'สื่อจาก URL', artist:"เล่นจากลิงก์", src:url, kind: isVideo?'video':'audio', coverEmoji: isVideo?'🎬':'🌐'});
+  showPage('playerPage');
+}
+
+/* ===================== Media events / controls ===================== */
+function bindMediaEvents(el){
+  el.onplay = ()=>{ updatePlayIcon(); document.getElementById('disc').classList.add('spin'); document.getElementById('eq').classList.add('playing'); renderNowPlayingList(); setMediaSessionPlaybackState('playing'); };
+  el.onpause = ()=>{ updatePlayIcon(); document.getElementById('disc').classList.remove('spin'); document.getElementById('eq').classList.remove('playing'); renderNowPlayingList(); setMediaSessionPlaybackState('paused'); };
+  el.ontimeupdate = ()=>{
+    if(!el.duration) return;
+    const pct = el.currentTime/el.duration;
+    document.getElementById('progressBar').value = pct*100;
+    document.getElementById('progressBar').style.background =
+      `linear-gradient(to right, var(--accent) ${ pct*100 }%, rgba(255,255,255,.15) 0%)`;
+    document.getElementById('timeCombined').textContent = `${formatTime(el.currentTime)} / ${formatTime(el.duration)}`;
+    const ringFg = document.getElementById('ringFg');
+    const circumference = 628.3;
+    ringFg.style.strokeDashoffset = circumference - (pct*circumference);
+    updateMediaSessionPosition(el);
+  };
+  el.onended = ()=>{
+    if(!isLooping){
+      document.getElementById('disc').classList.remove('spin'); updatePlayIcon();
+      if(currentQueueIndex >= 0) playNextInQueue();
+    }
+  };
+  el.loop = isLooping;
+}
+function togglePlay(){
+  if(!mediaEl || !mediaEl.src){ alert('กรุณาเลือกเพลง เปิดไฟล์ หรือใส่ลิงก์ก่อน'); return; }
+  ensureAudioGraph();
+  if(audioCtx && audioCtx.state==='suspended') audioCtx.resume().catch(()=>{});
+  if(mediaEl.paused) mediaEl.play(); else mediaEl.pause();
+}
+function updatePlayIcon(){
+  document.getElementById('playBtn').textContent = (mediaEl && !mediaEl.paused) ? '❚❚' : '▶';
+}
+function skip(sec){ if(mediaEl) mediaEl.currentTime = Math.max(0, mediaEl.currentTime + sec); }
+function seek(val){ if(mediaEl && mediaEl.duration) mediaEl.currentTime = (val/100)*mediaEl.duration; }
+function toggleLoop(){
+  isLooping = !isLooping;
+  if(mediaEl) mediaEl.loop = isLooping;
+  document.getElementById('loopBtn').classList.toggle('on', isLooping);
+}
+function setSpeed(val){
+  val = parseFloat(val);
+  document.getElementById('speedVal').textContent = val.toFixed(1)+'x';
+  document.getElementById('speedSlider').value = val;
+  audioEl.playbackRate = val;
+  videoEl.playbackRate = val;
+}
+let muted = false;
+function setVolumeStep(){
+  muted = !muted;
+  audioEl.muted = muted; videoEl.muted = muted;
+  document.getElementById('volBtn').textContent = muted ? '🔇' : '🔊';
+}
+function formatTime(t){
+  if(isNaN(t)) return '0:00';
+  const m = Math.floor(t/60), s = Math.floor(t%60);
+  return m+':'+String(s).padStart(2,'0');
+}
+
+/* ===================== Fullscreen ===================== */
+function toggleFullscreen(){
+  const isFs = app.classList.toggle('fs-mode');
+  showPage('playerPage');
+  try{
+    if(isFs && app.requestFullscreen) app.requestFullscreen().catch(()=>{});
+    if(!isFs && document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+  }catch(e){}
+}
+document.addEventListener('fullscreenchange', ()=>{
+  if(!document.fullscreenElement) app.classList.remove('fs-mode');
+});
+
+/* ===================== Equalizer ===================== */
+function ensureAudioGraph(){
+  if(window.__eqReady) return;
+  window.__eqReady = true;
+  try{
+    audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    eqChains.audio = buildEqChain(audioEl);
+    eqChains.video = buildEqChain(videoEl);
+  }catch(e){ console.warn('Equalizer ไม่พร้อมใช้งานบนอุปกรณ์นี้', e); }
+}
+function buildEqChain(el){
+  const source = audioCtx.createMediaElementSource(el);
+  const bandFilters = [60,230,910,4000,14000].map(f=>{
+    const filt = audioCtx.createBiquadFilter();
+    filt.type='peaking'; filt.frequency.value=f; filt.Q.value=1; filt.gain.value=0;
+    return filt;
+  });
+  const bassFilter = audioCtx.createBiquadFilter();
+  bassFilter.type='lowshelf'; bassFilter.frequency.value=120; bassFilter.gain.value=0;
+  const virtFilter = audioCtx.createBiquadFilter();
+  virtFilter.type='highshelf'; virtFilter.frequency.value=9000; virtFilter.gain.value=0;
+  let node = source;
+  bandFilters.forEach(f=>{ node.connect(f); node=f; });
+  node.connect(bassFilter); bassFilter.connect(virtFilter); virtFilter.connect(audioCtx.destination);
+  return {source, bandFilters, bassFilter, virtFilter, bypassed:false};
+}
+/* iOS suspends the AudioContext when the screen locks, which silences any
+   audio routed through it (i.e. through the Equalizer filters). To keep
+   music playing on the lock screen we temporarily re-route the media
+   element's output to go STRAIGHT to the speakers, skipping the filter
+   chain, then reconnect through the filters once the app is visible again. */
+function setEqBypass(bypass){
+  [eqChains.audio, eqChains.video].forEach(chain=>{
+    if(!chain || chain.bypassed === bypass) return;
+    try{ chain.source.disconnect(); }catch(e){}
+    if(bypass){ chain.source.connect(audioCtx.destination); }
+    else { chain.source.connect(chain.bandFilters[0]); }
+    chain.bypassed = bypass;
+  });
+}
+function openEqualizerPage(){
+  ensureAudioGraph();
+  if(audioCtx && audioCtx.state==='suspended') audioCtx.resume().catch(()=>{});
+  showPage('eqPage');
+}
+window.openEqualizer = openEqualizerPage;
+
+function renderEqUI(){
+  document.getElementById('eqToggles').innerHTML = eqBandLabels.map((_,i)=>`
+    <div style="display:flex;flex-direction:column;align-items:center;">
+      <div class="toggle-sw on" id="toggleBand${i}" onclick="toggleBand(${i})"></div>
+      <div class="toggle-lbl">ON</div>
+    </div>`).join('');
+  document.getElementById('eqBands').innerHTML = eqBandLabels.map((lbl,i)=>`
+    <div class="band-col">
+      <input type="range" class="band-slider" id="bandSlider${i}" min="-12" max="12" step="1" value="0" oninput="setBand(${i}, this.value)">
+      <div class="band-freq">${lbl}</div>
+    </div>`).join('');
+}
+renderEqUI();
+
+function applyBandToChains(i){
+  const v = eqState.bandOn[i] && eqState.power ? eqState.bands[i] : 0;
+  if(eqChains.audio) eqChains.audio.bandFilters[i].gain.value = v;
+  if(eqChains.video) eqChains.video.bandFilters[i].gain.value = v;
+}
+function setBand(i,val){
+  eqState.bands[i] = parseInt(val);
+  applyBandToChains(i);
+}
+function toggleBand(i){
+  ensureAudioGraph();
+  eqState.bandOn[i] = !eqState.bandOn[i];
+  document.getElementById('toggleBand'+i).classList.toggle('on', eqState.bandOn[i]);
+  applyBandToChains(i);
+}
+function applyBass(){
+  const v = eqState.power ? (eqState.bass/100)*15 : 0;
+  if(eqChains.audio) eqChains.audio.bassFilter.gain.value = v;
+  if(eqChains.video) eqChains.video.bassFilter.gain.value = v;
+}
+function applyVirt(){
+  const v = eqState.power ? (eqState.virt/100)*12 : 0;
+  if(eqChains.audio) eqChains.audio.virtFilter.gain.value = v;
+  if(eqChains.video) eqChains.video.virtFilter.gain.value = v;
+}
+function toggleEqPower(){
+  ensureAudioGraph();
+  eqState.power = !eqState.power;
+  const btn = document.getElementById('eqPowerBtn');
+  btn.classList.toggle('on', eqState.power);
+  btn.classList.toggle('off', !eqState.power);
+  for(let i=0;i<5;i++) applyBandToChains(i);
+  applyBass(); applyVirt();
+}
+
+function updateKnobVisual(el,val){
+  el.dataset.val = val;
+  el.style.setProperty('--val', val);
+  const rot = -135 + (val/100)*270;
+  el.querySelector('.indicator').style.setProperty('--rot', rot+'deg');
+}
+function setupKnob(el, onChange){
+  let startY=0, startVal=0, dragging=false;
+  const commit = (val)=>{
+    val = Math.max(0, Math.min(100, Math.round(val)));
+    updateKnobVisual(el, val);
+    onChange(val);
+  };
+  el.addEventListener('pointerdown', e=>{
+    ensureAudioGraph();
+    if(audioCtx && audioCtx.state==='suspended') audioCtx.resume().catch(()=>{});
+    dragging = true; startY = e.clientY; startVal = parseFloat(el.dataset.val)||0;
+    el.setPointerCapture(e.pointerId);
+  });
+  el.addEventListener('pointermove', e=>{
+    if(!dragging) return;
+    commit(startVal + (startY - e.clientY)*0.6);
+  });
+  el.addEventListener('pointerup', ()=>{ dragging=false; });
+  el.addEventListener('pointercancel', ()=>{ dragging=false; });
+  updateKnobVisual(el, startVal);
+}
+const knobBassEl = document.getElementById('knobBass');
+const knobVirtEl = document.getElementById('knobVirt');
+setupKnob(knobBassEl, v=>{ eqState.bass=v; document.getElementById('knobBassVal').textContent=v+'%'; applyBass(); });
+setupKnob(knobVirtEl, v=>{ eqState.virt=v; document.getElementById('knobVirtVal').textContent=v+'%'; applyVirt(); });
+
+function applyPreset(name){
+  document.querySelectorAll('.eq-preset').forEach(b=>b.classList.remove('active'));
+  const map = {flat:'presetFlat', bass:'presetBass', vocal:'presetVocal'};
+  document.getElementById(map[name]).classList.add('active');
+  const presets = {
+    flat:  {bands:[0,0,0,0,0],   bass:0,  virt:0 },
+    bass:  {bands:[8,5,0,-2,-2], bass:60, virt:10},
+    vocal: {bands:[-2,2,6,6,2],  bass:10, virt:30},
+  };
+  const p = presets[name];
+  ensureAudioGraph();
+  p.bands.forEach((v,i)=>{
+    eqState.bands[i] = v;
+    const s = document.getElementById('bandSlider'+i);
+    if(s) s.value = v;
+    applyBandToChains(i);
+  });
+  eqState.bass = p.bass; eqState.virt = p.virt;
+  document.getElementById('knobBassVal').textContent = p.bass+'%';
+  document.getElementById('knobVirtVal').textContent = p.virt+'%';
+  updateKnobVisual(knobBassEl, p.bass);
+  updateKnobVisual(knobVirtEl, p.virt);
+  applyBass(); applyVirt();
+}
+
+/* ===================== Media Session (lock screen / Control Center) ===================== */
+function updateMediaSessionMetadata(track){
+  if(!('mediaSession' in navigator)) return;
+  const artwork = track.coverUrl
+    ? [{ src: track.coverUrl, sizes: '512x512' }]
+    : [];
+  try{
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: track.title || 'ไม่ทราบชื่อเพลง',
+      artist: track.artist || 'Wave Music',
+      album: 'Wave Music Player',
+      artwork
+    });
+  }catch(e){ console.warn('ตั้งค่า mediaSession metadata ไม่สำเร็จ', e); }
+}
+function setMediaSessionPlaybackState(state){
+  if('mediaSession' in navigator) navigator.mediaSession.playbackState = state;
+}
+function updateMediaSessionPosition(el){
+  if(!('mediaSession' in navigator) || !('setPositionState' in navigator.mediaSession)) return;
+  if(!el.duration || isNaN(el.duration)) return;
+  try{
+    navigator.mediaSession.setPositionState({
+      duration: el.duration,
+      playbackRate: el.playbackRate || 1,
+      position: Math.min(el.currentTime, el.duration)
+    });
+  }catch(e){ /* some browsers throw if values are momentarily inconsistent, ignore */ }
+}
+function setupMediaSessionActions(){
+  if(!('mediaSession' in navigator)) return;
+  navigator.mediaSession.setActionHandler('play', ()=>{ if(mediaEl){ ensureAudioGraph(); mediaEl.play(); } });
+  navigator.mediaSession.setActionHandler('pause', ()=>{ if(mediaEl) mediaEl.pause(); });
+  navigator.mediaSession.setActionHandler('previoustrack', ()=> playPrevInQueue());
+  navigator.mediaSession.setActionHandler('nexttrack', ()=> playNextInQueue());
+  navigator.mediaSession.setActionHandler('seekbackward', (d)=> skip(-(d.seekOffset || 10)));
+  navigator.mediaSession.setActionHandler('seekforward', (d)=> skip(d.seekOffset || 10));
+  try{
+    navigator.mediaSession.setActionHandler('seekto', (d)=>{
+      if(mediaEl && d.seekTime != null) mediaEl.currentTime = d.seekTime;
+    });
+  }catch(e){ /* seekto not supported everywhere */ }
+  navigator.mediaSession.setActionHandler('stop', ()=>{ if(mediaEl) mediaEl.pause(); });
+}
+setupMediaSessionActions();
+
+/* ===================== Background playback watchdog ===================== */
+/* iOS Safari suspends the AudioContext (used by the Equalizer) when the
+   screen locks / tab is hidden, and doesn't always resume it cleanly when
+   you come back — this is what causes "silence on lock screen" or
+   "stuck/glitchy audio" after unlocking. We track whether playback was
+   active before hiding, then resume the audio graph and restart playback
+   as soon as the page becomes visible again. */
+let wasPlayingBeforeHidden = false;
+function handlePageVisible(){
+  if(audioCtx){
+    setEqBypass(false);
+    if(audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
+  }
+  if(wasPlayingBeforeHidden && mediaEl && mediaEl.paused){
+    mediaEl.play().catch(()=>{});
+  }
+}
+document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden){
+    wasPlayingBeforeHidden = !!(mediaEl && !mediaEl.paused);
+    if(audioCtx) setEqBypass(true);
+  } else {
+    handlePageVisible();
+  }
+});
+window.addEventListener('pageshow', (e)=>{ if(e.persisted) handlePageVisible(); });
+window.addEventListener('focus', handlePageVisible);
+
+/* ===================== Add to Home Screen hint ===================== */
+const A2HS_DISMISS_KEY = 'musicWave_a2hs_dismissed';
+function isStandaloneMode(){
+  return window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+}
+function initA2hsBanner(){
+  const banner = document.getElementById('a2hsBanner');
+  if(!banner) return;
+  if(isStandaloneMode() || localStorage.getItem(A2HS_DISMISS_KEY) === '1'){
+    banner.style.display = 'none';
+    return;
+  }
+  banner.style.display = 'flex';
+}
+function dismissA2hsBanner(){
+  localStorage.setItem(A2HS_DISMISS_KEY, '1');
+  const banner = document.getElementById('a2hsBanner');
+  if(banner) banner.style.display = 'none';
+}
+initA2hsBanner();
+
+/* init */
+updateFavBadge();
+hydratePlaylistFromDevice();
+
+  
+
+</script>
+</body>
+</html>

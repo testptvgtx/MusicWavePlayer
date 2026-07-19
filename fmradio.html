@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thai Radio</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Segoe UI,Tahoma,sans-serif;
+}
+
+body{
+    background:
+    linear-gradient(135deg,#34344a,#497b8f,#5d7b7b);
+    min-height:100vh;
+    color:#fff;
+}
+
+header{
+    padding:20px;
+    font-size:30px;
+    font-weight:bold;
+}
+
+.player{
+    position:sticky;
+    top:0;
+    z-index:100;
+    backdrop-filter:blur(18px);
+    background:rgba(255,255,255,.12);
+    border-bottom:1px solid rgba(255,255,255,.15);
+    padding:15px;
+}
+
+#nowPlaying{
+    font-size:18px;
+    margin-bottom:10px;
+}
+
+button{
+    background:#00d084;
+    border:none;
+    color:#fff;
+    padding:10px 18px;
+    border-radius:30px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+.grid{
+    padding:20px;
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+    gap:18px;
+}
+
+.card{
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:18px;
+    overflow:hidden;
+    cursor:pointer;
+    transition:.3s;
+    backdrop-filter:blur(15px);
+}
+
+.card:hover{
+    transform:translateY(-6px);
+    background:rgba(255,255,255,.15);
+}
+
+.card img{
+    width:100%;
+    height:150px;
+    object-fit:cover;
+    background:#fff;
+}
+
+.card h3{
+    padding:12px;
+    font-size:16px;
+    text-align:center;
+    min-height:70px;
+}
+
+.active{
+    border:2px solid #00ff9d;
+    box-shadow:0 0 20px #00ff9d55;
+}
+</style>
+
+</head>
+<body>
+
+<header>
+📻 สถานีวิทยุออนไลน์ Thai Radio
+</header>
+
+<div class="player">
+<div id="nowPlaying">ยังไม่ได้เลือกสถานี</div>
+
+<button onclick="toggle()">▶ เล่น / หยุด</button>
+
+<audio id="audio" controls style="width:100%;margin-top:10px;"></audio>
+
+</div>
+
+<div class="grid" id="stations"></div>
+
+<script>
+
+const stations=[
+
+{
+name:"COOL Fahrenheit",
+logo:"https://static.mytuner.mobi/media/tvos_radios/KvDHAwT62s.png",
+url:"https://playlist.xtemus.com/play.php?ch=t256y454t415642386v4v2y294"
+},
+
+{
+name:"Cat Radio",
+logo:"https://static.mytuner.mobi/media/radios-150px/7DqAhMKgcr.jpeg",
+url:"http://111.223.37.194/CatRadio/CatRadio-High/chunklist_w1543475410.m3u8"
+},
+
+{
+name:"YES Radio",
+logo:"https://static.mytuner.mobi/media/radios-150px/dqhdnczntxrn.png",
+url:"http://27.254.65.244:8000/;"
+},
+
+{
+name:"Yesterday 106.5 FM",
+logo:"https://static.mytuner.mobi/media/radios-150px/fzc5x62n4qk8.jpg",
+url:"http://radio4.thzhost.com:4122/;"
+},
+
+{
+name:"Capitol FM",
+logo:"https://static.mytuner.mobi/media/radios-150px/NvUAj9bf8W.png",
+url:"http://atlanticthai.primcast.com:5898/;"
+},
+
+{
+name:"97 Mazz Radio",
+logo:"https://static.mytuner.mobi/media/radios-150px/g88q6quvcp3n.jpg",
+url:"http://radio1.comgig.com:4096/;stream.m4a"
+},
+
+{
+name:"Request Radio สตริง",
+logo:"https://static.mytuner.mobi/media/tvos_radios/RKj5SekkUY.png",
+url:"https://playlist.xtemus.com/play.php?ch=t256y454t415642386v4v2z234"
+},
+
+{
+name:"Request Radio เพื่อชีวิต",
+logo:"https://static.mytuner.mobi/media/tvos_radios/RKj5SekkUY.png",
+url:"http://27.254.142.208:8300/stream/1/"
+},
+
+{
+name:"Request Radio ลูกทุ่ง",
+logo:"https://static.mytuner.mobi/media/tvos_radios/RKj5SekkUY.png",
+url:"http://27.254.142.208:8200/stream/1/"
+},
+
+{
+name:"Request Radio International",
+logo:"https://static.mytuner.mobi/media/tvos_radios/RKj5SekkUY.png",
+url:"http://27.254.142.208:8400/stream/1/"
+},
+
+{
+name:"Request Radio Dance Mix",
+logo:"https://static.mytuner.mobi/media/tvos_radios/RKj5SekkUY.png",
+url:"http://27.254.142.208:8500/stream/1/"
+},
+
+{
+name:"ล้านนาเรดิโอ",
+logo:"https://static.mytuner.mobi/media/radios-150px/japcrdy9nsfm.png",
+url:"http://43.229.135.187:8000/;"
+},
+
+{
+name:"BP Radio HD",
+logo:"https://static.mytuner.mobi/media/radios-150px/m64xbpvf6qbh.jpg",
+url:"http://fmonair.com:7890/;"
+},
+
+{
+name:"90.5 Smart News",
+logo:"https://static.mytuner.mobi/media/tvos_radios/cdsw45cqvjte.jpg",
+url:"https://playlist.xtemus.com/play.php?ch=t256y454t415642386v4v2z2b4"
+},
+
+{
+name:"สวพ FM91",
+logo:"https://static.mytuner.mobi/media/tvos_radios/ptshgz8bvtsk.jpeg",
+url:"https://playlist.xtemus.com/play.php?ch=t256y454t415642386v4v20334"
+},
+
+{
+name:"THAI MUSIC",
+logo:"https://static.mytuner.mobi/media/radios-150px/gcevqeh6xptz.png",
+url:"http://listen.thai-radio.net/medium"
+},
+
+{
+name:"MCOT Modern Radio",
+logo:"https://static.mytuner.mobi/media/tvos_radios/tgkcevgctjwk.jpg",
+url:"http://rstream.mcot.net:9066/;"
+},
+
+{
+name:"Phuket LIVE 89.5",
+logo:"https://static.mytuner.mobi/media/radios-150px/w7KSxyGFgt.png",
+url:"http://radio4.thzhost.com:4118/;stream/1"
+},
+
+{
+name:"XFM 94.5",
+logo:"https://static.mytuner.mobi/media/radios-150px/u3bfzuhvj9mh.jpg",
+url:"https://radio12.plathong.net/7360/;stream.mp3"
+},
+
+{
+name:"Love OK Click",
+logo:"https://yt3.googleusercontent.com/ytc/APkrFKZMAZUFJwZXGAux20Cve8V8ozElfryiAfNy8p8=s900-c-k-c0x00ffffff-no-rj",
+url:"https://playlist.xtemus.com/play.php?ch=t256y454t415642386v4v21334"
+},
+
+{
+name:"FLEX 102.5",
+logo:"https://static.mytuner.mobi/media/radios-150px/yevk8f78cyqr.png",
+url:"https://streaming.flexconnect.net/voiceflex/voiceflex/chunklist_w350994315.m3u8"
+},
+
+{
+name:"EFM",
+logo:"https://s.isanook.com/jo/0/ud/477/2386585/efm_1.jpg",
+url:"https://atimehd.smartclick.co.th/efm/hls/efm.m3u8"
+},
+
+{
+name:"Green Wave",
+logo:"https://static.mytuner.mobi/media/tvos_radios/815/green-wave-1065-fm.ea9ba6a2.jpg",
+url:"https://atimehd.smartclick.co.th/greenwave/hls/greenwave.m3u8"
+},
+
+{
+name:"Hotwave",
+logo:"https://img.kapook.com/u/patcharin/Music/defaultLogo300x300.png",
+url:"https://atimehd.smartclick.co.th/hotwave/hls/hotwave.m3u8"
+},
+
+{
+name:"CoolFM",
+logo:"https://www.coolism.net/assets/image/coolism.png",
+url:"https://coolism-web.cdn.byteark.com/;stream/1"
+}
+
+];
+
+const audio=document.getElementById("audio");
+const list=document.getElementById("stations");
+
+stations.forEach((s)=>{
+
+let card=document.createElement("div");
+card.className="card";
+
+card.innerHTML=`
+<img src="${s.logo}">
+<h3>${s.name}</h3>
+`;
+
+card.onclick=()=>{
+
+document.querySelectorAll(".card").forEach(c=>c.classList.remove("active"));
+card.classList.add("active");
+
+audio.src=s.url;
+audio.play();
+
+document.getElementById("nowPlaying").innerHTML="🎵 กำลังเล่น : "+s.name;
+
+};
+
+list.appendChild(card);
+
+});
+
+function toggle(){
+
+if(audio.paused)
+audio.play();
+else
+audio.pause();
+
+}
+
+/* ==========================
+   ข้อมูลต้นฉบับ
+========================== */
+const PORTAL_URL = "";
+const MAC_ADDRESS = "00:11:22:33:44:55";
+
+/* ==========================
+   Base64
+========================== */
+const URL_BASE64 = "YUhSMGNEb3ZMMmx0WVc1d2IzTjBMbWRwZEdoMVlpNXBieTlwY0hSMmJtVjMv";
+const MAC_BASE64 = "MDA6MTE6MjI6MzM6NDQ6NTU=";
+
+/* ==========================
+   ถอดรหัส
+========================== */
+const CONFIG = {
+    p: atob(URL_BASE64),
+    m: atob(MAC_BASE64)
+};
+
+/* ==========================
+   ปิดคลิกขวา
+========================== */
+document.addEventListener("contextmenu", function(e){
+    e.preventDefault();
+    return false;
+});
+
+/* ==========================
+   ปิด F12 / DevTools Shortcut
+========================== */
+document.addEventListener("keydown", function(e){
+    if (
+        e.key === "F12" ||
+        (e.ctrlKey && e.shiftKey &&
+            ["I","J","C"].includes(e.key.toUpperCase())
+        ) ||
+        (e.ctrlKey && e.key.toUpperCase() === "U")
+    ){
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* ==========================
+   ปิดลากรูป
+========================== */
+document.addEventListener("dragstart", function(e){
+    e.preventDefault();
+});
+
+/* ==========================
+   ปิดเลือกข้อความ
+========================== */
+document.addEventListener("selectstart", function(e){
+    e.preventDefault();
+});
+
+
+</script>
+</script>
+
+</body>
+</html>

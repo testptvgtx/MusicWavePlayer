@@ -92,6 +92,28 @@ button{
     border:2px solid #00ff9d;
     box-shadow:0 0 20px #00ff9d55;
 }
+
+.loading{
+    border:2px solid #ffd166;
+    box-shadow:0 0 20px #ffd16655;
+}
+
+.error{
+    border:2px solid #ff4d4d;
+    box-shadow:0 0 20px #ff4d4d55;
+}
+
+.status-text{
+    font-size:13px;
+    opacity:.85;
+    padding:0 12px 10px;
+    text-align:center;
+    margin-top:-6px;
+}
+
+#nowPlaying.err{
+    color:#ff8080;
+}
 </style>
 
 </head>
@@ -123,15 +145,9 @@ url:"https://playlist.xtemus.com/play.php?ch=t256y454t415642386v4v2y294"
 },
 
 {
-name:"Cat Radio",
-logo:"https://static.mytuner.mobi/media/radios-150px/7DqAhMKgcr.jpeg",
-url:"http://111.223.37.194/CatRadio/CatRadio-High/chunklist_w1543475410.m3u8"
-},
-
-{
 name:"EFM",
 logo:"https://s.isanook.com/jo/0/ud/477/2386585/efm_1.jpg",
-url:"https://atimehd.smartclick.co.th/efm/hls/efm.m3u8"
+url:"http://atimehd.smartclick.co.th/efm/hls/efm.m3u8"
 },
     
 {
@@ -257,13 +273,13 @@ url:"https://streaming.flexconnect.net/voiceflex/voiceflex/chunklist_w350994315.
 {
 name:"Green Wave",
 logo:"https://static.mytuner.mobi/media/tvos_radios/815/green-wave-1065-fm.ea9ba6a2.jpg",
-url:"https://atimehd.smartclick.co.th/greenwave/hls/greenwave.m3u8"
+url:"http://atimehd.smartclick.co.th/greenwave/hls/greenwave.m3u8"
 },
 
 {
 name:"Hotwave",
 logo:"https://img.kapook.com/u/patcharin/Music/defaultLogo300x300.png",
-url:"https://atimehd.smartclick.co.th/hotwave/hls/hotwave.m3u8"
+url:"http://atimehd.smartclick.co.th/hotwave/hls/hotwave.m3u8"
 },
 
 {
@@ -275,7 +291,7 @@ url:"https://coolism-web.cdn.byteark.com/;stream/1"
 {
 name:"Rad Radio",
 logo:"https://static.mytuner.mobi/media/tvos_radios/972/rad-radio-895.bfe6a248.jpg",
-url:"e.radio-thai.com/embed/rad-radio-895-483972"
+url:"https://e.radio-thai.com/embed/rad-radio-895-483972"
 }, 
     
 {
@@ -296,16 +312,39 @@ let card=document.createElement("div");
 card.className="card";
 
 card.innerHTML=`
-<img src="${s.logo}">
+<img src="${s.logo}" onerror="this.style.display='none'">
 <h3>${s.name}</h3>
+<div class="status-text"></div>
 `;
 
 card.onclick = () => {
+    playStation(s, card);
+};
 
-    document.querySelectorAll(".card").forEach(c => c.classList.remove("active"));
-    card.classList.add("active");
+list.appendChild(card);
 
-    document.getElementById("nowPlaying").textContent = "🎵 กำลังเล่น : " + s.name;
+});
+
+function setCardState(card, state, message) {
+    document.querySelectorAll(".card").forEach(c => {
+        c.classList.remove("active", "loading", "error");
+    });
+    if (card) {
+        card.classList.add(state);
+        const statusEl = card.querySelector(".status-text");
+        if (statusEl) statusEl.textContent = message || "";
+    }
+}
+
+function playStation(s, card) {
+
+    window.currentCard = card;
+    window.currentStation = s;
+    window.triedHttpsFallback = false;
+
+    setCardState(card, "loading", "กำลังเชื่อมต่อ...");
+    document.getElementById("nowPlaying").classList.remove("err");
+    document.getElementById("nowPlaying").textContent = "🔄 กำลังเชื่อมต่อ : " + s.name;
 
     if (window.hls) {
         window.hls.destroy();
@@ -316,101 +355,97 @@ card.onclick = () => {
     audio.removeAttribute("src");
     audio.load();
 
-    if (s.url.toLowerCase().includes(".m3u8")) {
+    let url = s.url;
+    if (!/^https?:\/\//i.test(url)) {
+        url = "https://" + url;
+    }
+
+    loadUrl(url, card, s);
+}
+
+function loadUrl(url, card, s) {
+
+    if (url.toLowerCase().includes(".m3u8")) {
 
         if (Hls.isSupported()) {
 
             window.hls = new Hls();
 
-            window.hls.loadSource(s.url);
+            window.hls.on(Hls.Events.ERROR, function (event, data) {
+                if (!data.fatal) return;
 
+                // ลองสลับ http <-> https ก่อนแสดง error ให้ผู้ใช้เห็น
+                if (!window.triedHttpsFallback && url.toLowerCase().startsWith("http://")) {
+                    window.triedHttpsFallback = true;
+                    window.hls.destroy();
+                    window.hls = null;
+                    loadUrl(url.replace(/^http:\/\//i, "https://"), card, s);
+                    return;
+                }
+
+                showError(card, "เชื่อมต่อสถานีไม่สำเร็จ");
+            });
+
+            window.hls.loadSource(url);
             window.hls.attachMedia(audio);
 
             window.hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                audio.play().catch(console.error);
+                audio.play().catch(() => showError(card, "เบราว์เซอร์ไม่อนุญาตให้เล่นอัตโนมัติ"));
             });
 
         } else if (audio.canPlayType("application/vnd.apple.mpegurl")) {
 
-            audio.src = s.url;
-            audio.play().catch(console.error);
+            audio.src = url;
+            audio.play().catch(() => showError(card, "เล่นสถานีนี้ไม่ได้"));
 
+        } else {
+            showError(card, "เบราว์เซอร์นี้ไม่รองรับสตรีมนี้");
         }
 
     } else {
 
-        audio.src = s.url;
-        audio.play().catch(console.error);
+        audio.src = url;
+        audio.play().catch(() => {
+            if (!window.triedHttpsFallback && url.toLowerCase().startsWith("http://")) {
+                window.triedHttpsFallback = true;
+                loadUrl(url.replace(/^http:\/\//i, "https://"), card, s);
+            } else {
+                showError(card, "เล่นสถานีนี้ไม่ได้");
+            }
+        });
 
     }
+}
 
-};
-    audio.addEventListener("error", function () {
+function showError(card, message) {
+    if (window.currentCard !== card) return;
+    setCardState(card, "error", "❌ " + message);
+    const npEl = document.getElementById("nowPlaying");
+    npEl.classList.add("err");
+    npEl.textContent = "⚠️ เล่นไม่ได้ : " + (window.currentStation ? window.currentStation.name : "");
+}
 
-    alert("สถานีนี้ไม่สามารถเล่นได้ หรือเซิร์ฟเวอร์บล็อกการเล่นบนเว็บ");
-
+audio.addEventListener("playing", function () {
+    if (!window.currentCard) return;
+    setCardState(window.currentCard, "active", "▶ กำลังเล่น");
+    document.getElementById("nowPlaying").classList.remove("err");
+    document.getElementById("nowPlaying").textContent = "🎵 กำลังเล่น : " + (window.currentStation ? window.currentStation.name : "");
 });
 
-/* ==========================
-   ข้อมูลต้นฉบับ
-========================== */
-const PORTAL_URL = "";
-const MAC_ADDRESS = "00:11:22:33:44:55";
+audio.addEventListener("error", function () {
+    if (!window.currentCard) return;
 
-/* ==========================
-   Base64
-========================== */
-const URL_BASE64 = "YUhSMGNEb3ZMMmx0WVc1d2IzTjBMbWRwZEdoMVlpNXBieTlwY0hSMmJtVjMv";
-const MAC_BASE64 = "MDA6MTE6MjI6MzM6NDQ6NTU=";
-
-/* ==========================
-   ถอดรหัส
-========================== */
-const CONFIG = {
-    p: atob(URL_BASE64),
-    m: atob(MAC_BASE64)
-};
-
-/* ==========================
-   ปิดคลิกขวา
-========================== */
-document.addEventListener("contextmenu", function(e){
-    e.preventDefault();
-    return false;
-});
-
-/* ==========================
-   ปิด F12 / DevTools Shortcut
-========================== */
-document.addEventListener("keydown", function(e){
-    if (
-        e.key === "F12" ||
-        (e.ctrlKey && e.shiftKey &&
-            ["I","J","C"].includes(e.key.toUpperCase())
-        ) ||
-        (e.ctrlKey && e.key.toUpperCase() === "U")
-    ){
-        e.preventDefault();
-        return false;
+    const url = audio.src || "";
+    if (!window.triedHttpsFallback && url.toLowerCase().startsWith("http://")) {
+        window.triedHttpsFallback = true;
+        loadUrl(url.replace(/^http:\/\//i, "https://"), window.currentCard, window.currentStation);
+        return;
     }
-});
 
-/* ==========================
-   ปิดลากรูป
-========================== */
-document.addEventListener("dragstart", function(e){
-    e.preventDefault();
-});
-
-/* ==========================
-   ปิดเลือกข้อความ
-========================== */
-document.addEventListener("selectstart", function(e){
-    e.preventDefault();
+    showError(window.currentCard, "สถานีนี้เล่นไม่ได้ หรือเซิร์ฟเวอร์บล็อกการเล่นบนเว็บ");
 });
 
 
-</script>
 </script>
 
 </body>

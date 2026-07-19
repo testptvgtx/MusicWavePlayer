@@ -120,7 +120,7 @@ button{
 <body>
 
 <header>
-📻 สถานีวิทยุออนไลน์ Thai Radio
+📻 สถานีวิทยุออนไลน์ FM AM Thai Radio 🎵
 </header>
 
 <div class="player">
@@ -245,6 +245,12 @@ name:"MCOT Modern Radio",
 logo:"https://static.mytuner.mobi/media/tvos_radios/tgkcevgctjwk.jpg",
 url:"http://rstream.mcot.net:9066/;"
 },
+    
+ {
+name:"FM 96.5 คลื่นความคิด",
+logo:"https://static.mytuner.mobi/media/tvos_radios/367/fm-965-khluuenkhwaamkhid-thinking-radio.c01e225c.png",
+url:"https://live-org-01-cdn.mcot.net/radiocdn_edge/fm965.stream_aac/playlist.m3u8"
+},   
 
 {
 name:"Phuket LIVE 89.5",
@@ -293,6 +299,12 @@ name:"Rad Radio",
 logo:"https://static.mytuner.mobi/media/tvos_radios/972/rad-radio-895.bfe6a248.jpg",
 url:"https://e.radio-thai.com/embed/rad-radio-895-483972"
 }, 
+
+{
+name:"Thai music Radio",
+logo:"https://static.mytuner.mobi/media/tvos_radios/972/rad-radio-895.bfe6a248.jpg",
+url:"https://listen.thai-radio.net/128.mp3"
+},   
     
 {
 name:"met107",
@@ -445,7 +457,66 @@ audio.addEventListener("error", function () {
     showError(window.currentCard, "สถานีนี้เล่นไม่ได้ หรือเซิร์ฟเวอร์บล็อกการเล่นบนเว็บ");
 });
 
+/* ==========================
+   ข้อมูลต้นฉบับ
+========================== */
+const PORTAL_URL = "";
+const MAC_ADDRESS = "00:11:22:33:44:55";
 
+/* ==========================
+   Base64
+========================== */
+const URL_BASE64 = "YUhSMGNEb3ZMMmx0WVc1d2IzTjBMbWRwZEdoMVlpNXBieTlwY0hSMmJtVjMv";
+const MAC_BASE64 = "MDA6MTE6MjI6MzM6NDQ6NTU=";
+
+/* ==========================
+   ถอดรหัส
+========================== */
+const CONFIG = {
+    p: atob(URL_BASE64),
+    m: atob(MAC_BASE64)
+};
+
+/* ==========================
+   ปิดคลิกขวา
+========================== */
+document.addEventListener("contextmenu", function(e){
+    e.preventDefault();
+    return false;
+});
+
+/* ==========================
+   ปิด F12 / DevTools Shortcut
+========================== */
+document.addEventListener("keydown", function(e){
+    if (
+        e.key === "F12" ||
+        (e.ctrlKey && e.shiftKey &&
+            ["I","J","C"].includes(e.key.toUpperCase())
+        ) ||
+        (e.ctrlKey && e.key.toUpperCase() === "U")
+    ){
+        e.preventDefault();
+        return false;
+    }
+});
+
+/* ==========================
+   ปิดลากรูป
+========================== */
+document.addEventListener("dragstart", function(e){
+    e.preventDefault();
+});
+
+/* ==========================
+   ปิดเลือกข้อความ
+========================== */
+document.addEventListener("selectstart", function(e){
+    e.preventDefault();
+});
+
+
+</script>
 </script>
 
 </body>
